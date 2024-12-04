@@ -121,62 +121,14 @@ This will be the environment where your pipelines, datasets, and linked services
 * Sink: Define the sink dataset (the Raw Container in the Data Lake).
 * Example of the Copy Activity:
 # Linked Service http:
-
-
-
-
-
-
-
-
-{
-	"name": "ls_HttpServer",
-	"properties": {
-		"annotations": [],
-		"type": "HttpServer",
-		"typeProperties": {
-			"url": "https://fakestoreapi.com/products",
-			"enableServerCertificateValidation": true,
-			"authenticationType": "Anonymous"
-		}
-	}
-} 
+<img width="637" alt="ht" src="https://github.com/user-attachments/assets/53beda14-5183-4848-a27c-ff669c95308c">
 
 # Linked Service sqldb:
-*{
-*	"name": "ls_sqldb",
-*	"properties": {
-*		"annotations": [],
-*		"type": "AzureSqlDatabase",
-*		"typeProperties": {
-*			"server": "retailserver23.database.windows.net",
-*			"database": "retaildbase",
-*			"encrypt": "mandatory",
-*			"trustServerCertificate": false,
-*			"authenticationType": "SQL",
-*			"userName": "sqluseradmin",
-*			"password": {
-*				"type": "AzureKeyVaultSecret",
-*				"store": {
-*					"referenceName": "ls_keyvault",
-*					"type": "LinkedServiceReference"
-*				},
-*				"secretName": "client-secret"
-*			}
-*		}
-*	}
-*}
+<img width="776" alt="sql" src="https://github.com/user-attachments/assets/acccaddc-9c67-4b33-812c-e6d6b0ed250e">
+
 # Linked Service keyvault:
-*{
-*	"name": "ls_keyvault",
-*	"properties": {
-*		"annotations": [],
-*		"type": "AzureKeyVault",
-*		"typeProperties": {
-*			"baseUrl": "https://retailkeyvault.vault.azure.net/"
-*		}
-*	}
-*}
+<img width="747" alt="key" src="https://github.com/user-attachments/assets/2f98cd01-baf1-462e-b0e3-a2ecf5f3f183">
+
 # 4. Add Data Flow 
 * If transformations are needed (cleaning or data aggregation), add a Data Flow activity before the Copy Activity in the pipeline.
 * Use Data Flow to filter out invalid records or to transform the data format before moving it to the Raw container.
@@ -190,6 +142,38 @@ This will be the environment where your pipelines, datasets, and linked services
 * Once the pipeline successfully runs, validate that the data has been copied correctly to the Raw container in Azure Data Lake.
 * You can check the data using Azure Storage Explorer or through the Azure portal.
 
+
+
+
+
+
+# 1. Configure Azure Data Lake Access
+* This sets the Spark configuration to access an Azure Data Lake Storage (ADLS) Gen2 account (mywarehouse23) using an access key.
+* The key provides authenticated access to the data lake for reading and writing files.
+# 2. Display Raw Container Contents
+Lists and displays the files in the raw container of the ADLS account in tabular format.
+dbutils.fs.ls() fetches the contents of the specified ADLS path.
+# 3. Rename Files
+* Renames files in the raw container for easier identification:
+* 78d9a3a4-7a07-4e1d-97ff-24bc6d2dd964.txt → http.csv
+* SalesLT.Product.txt → salesproduct.csv
+# 4. Read Data from Raw Container
+* Reads the renamed CSV files into DataFrames (http_df and salesproduct_df) using Spark.
+* header=True: Treats the first row as column headers.
+* inferSchema="true": Automatically detects the column data types.
+# 5. Define Explicit Schemas
+* Explicit schemas are defined for the DataFrames to enforce column data types and structure.
+# 6. Drop Unnecessary Columns
+* Drops irrelevant or redundant columns to clean the datasets.
+# 7. Reload Data with Defined Schemas
+* Reloads the cleaned data from the raw container, applying the defined schemas.
+# 8. Define Curated Container Paths
+* Specifies the paths for saving cleaned datasets into the curated container in Delta format.
+# 9. Save Data to Curated Container
+* Writes the cleaned DataFrames (http_df_cleaned and salesproduct_df_cleaned) to the curated container in Delta format:
+* mode="append": Appends new data if the Delta table already exists.
+# 10. Verify Curated Data
+* Lists the files in the curated container to verify successful data writing.
 
 
 
