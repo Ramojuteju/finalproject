@@ -22,6 +22,7 @@
   
 # Microsoft Entra ID:
 <img width="1728" alt="MEntraID" src="https://github.com/user-attachments/assets/9d801a5a-2c52-4fdb-ab83-4bd52e0bcbc9">
+
 * Used for the Azure Default Directory application to manage the Service Principal.
 * Azure Key Vault:
 * Securely stores Service Principal credentials.
@@ -53,73 +54,73 @@
 * Implement Role-Based Access Control (RBAC) to restrict access to data and resources.
 
 # Technology Stack
-Azure SQL Database:
-Used as the source for customer and product catalog data.
-Microsoft SQL Server:
-Houses transactional data, including sales, orders, and other business-critical information.
-Azure Data Factory:
-Instance: retailfact23
-Used for data integration, orchestrating ETL/ELT processes for data movement and transformation.
-Azure Data Lake:
-Used for data storage in three layers:
-Raw: Stores unprocessed, raw data ingested from various sources.
-Curated: Contains cleaned and partially transformed data for further processing.
-Staging: Holds business-ready data, optimized for analytics.
-Databricks:
-Instance: retailfact23
-Cluster: Ramoju
-Used for advanced transformations, aggregations, and machine learning tasks on the data.
-Azure Synapse Analytics:
-Workspace: newretailsynapse
-Provides data warehousing and query engine capabilities for large-scale analytics and reporting.
-Azure Key Vault:
-Instance: retailkeyvault
-Securely stores credentials and configurations, including service principal credentials and other secrets.
+* Azure SQL Database:
+* Used as the source for customer and product catalog data.
+* Microsoft SQL Server:
+* Houses transactional data, including sales, orders, and other business-critical information.
+* Azure Data Factory:
+* Instance: retailfact23
+* Used for data integration, orchestrating ETL/ELT processes for data movement and transformation.
+* Azure Data Lake:
+* Used for data storage in three layers:
+* Raw: Stores unprocessed, raw data ingested from various sources.
+* Curated: Contains cleaned and partially transformed data for further processing.
+* Staging: Holds business-ready data, optimized for analytics.
+* Databricks:
+* Instance: retailfact23
+* Cluster: Ramoju
+* Used for advanced transformations, aggregations, and machine learning tasks on the data.
+* Azure Synapse Analytics:
+* Workspace: newretailsynapse
+* Provides data warehousing and query engine capabilities for large-scale analytics and reporting.
+* Azure Key Vault:
+* Instance: retailkeyvault
+* Securely stores credentials and configurations, including service principal credentials and other secrets.
 
-* Service Principal
-Authentication and Access Control:
-Use a Service Principal for automated authentication with Azure services (e.g., Azure Data Factory, Databricks, Azure Synapse) without needing a user to log in.
-Role-Based Access Control (RBAC):
-Assign the Service Principal the necessary roles to access resources:
-Contributor or Reader for Azure SQL Database and Data Lake.
-Data Factory Contributor for managing pipelines.
-Storage Blob Data Contributor for accessing containers in Data Lake.
-Key Vault Secrets User for accessing secrets in Azure Key Vault.
-Service Principal Setup:
-Create a Service Principal in Azure Active Directory.
-Generate client ID, tenant ID, and client secret (store it in Key Vault).
-Assign required RBAC roles to the Service Principal for accessing Azure resources.
+# Service Principal
+* Authentication and Access Control:
+* Use a Service Principal for automated authentication with Azure services (e.g., Azure Data Factory, Databricks, Azure Synapse) without needing a user to log in.
+* Role-Based Access Control (RBAC):
+* Assign the Service Principal the necessary roles to access resources:
+* Contributor or Reader for Azure SQL Database and Data Lake.
+* Data Factory Contributor for managing pipelines.
+* Storage Blob Data Contributor for accessing containers in Data Lake.
+* Key Vault Secrets User for accessing secrets in Azure Key Vault.
+* Service Principal Setup:
+* Create a Service Principal in Azure Active Directory.
+* Generate client ID, tenant ID, and client secret (store it in Key Vault).
+* Assign required RBAC roles to the Service Principal for accessing Azure resources.
 
-* Using Azure Key Vault
-Create a Key Vault:
-In Azure, create a Key Vault (retailkeyvault) to securely store secrets.
-Store Secrets:
-Add secrets to the vault, such as a Service Principal client secret, with a name (client-secret).
-Access Secrets:
-Applications or services (Azure Data Factory) retrieve the secret from the Key Vault using its name (client-secret) and the vault's name (retailkeyvault).
-Assign Permissions:
-Assign the necessary access roles to allow services to read the secrets stored in the vault.
+# Using Azure Key Vault
+* Create a Key Vault:
+* In Azure, create a Key Vault (retailkeyvault) to securely store secrets.
+* Store Secrets:
+* Add secrets to the vault, such as a Service Principal client secret, with a name (client-secret).
+* Access Secrets:
+* Applications or services (Azure Data Factory) retrieve the secret from the Key Vault using its name (client-secret) and the vault's name (retailkeyvault).
+* Assign Permissions:
+* Assign the necessary access roles to allow services to read the secrets stored in the vault.
 
-* Implementation Plan for Data Movement and Transformation Using Azure Data Factory Pipeline
-1. Create an Azure Data Factory (ADF) Instance
-In the Azure portal, create an Azure Data Factory instance (e.g., retailfact23).
+# Implementation Plan for Data Movement and Transformation Using Azure Data Factory Pipeline
+* 1. Create an Azure Data Factory (ADF) Instance
+* In the Azure portal, create an Azure Data Factory instance (e.g., retailfact23).
 This will be the environment where your pipelines, datasets, and linked services are defined.
-2. Define Linked Services
-Linked Service for Source:
-Create a linked service for your source data (Azure SQL Database, API).
-This defines the connection to your data source.
-Linked Service for Sink (Data Lake Storage):
-Create a linked service to Azure Data Lake Storage Gen2 where your raw data will be stored (mywarehouse23).
-This will define how ADF connects to your Data Lake storage.
-3. Define the Pipeline with Copy Activity
-Create a Pipeline:
-Create a new pipeline in Azure Data Factory.
-Add a Copy Activity to the pipeline that moves and transforms data from the source to the raw container.
-Configure the Copy Activity:
-Source: Define the source dataset and transformation logic
-Sink: Define the sink dataset (the Raw Container in the Data Lake).
-Example of the Copy Activity:
-Linked Service http:
+* 2. Define Linked Services
+* Linked Service for Source:
+* Create a linked service for your source data (Azure SQL Database, API).
+* This defines the connection to your data source.
+* Linked Service for Sink (Data Lake Storage):
+* Create a linked service to Azure Data Lake Storage Gen2 where your raw data will be stored (mywarehouse23).
+* This will define how ADF connects to your Data Lake storage.
+* 3. Define the Pipeline with Copy Activity
+* Create a Pipeline:
+* Create a new pipeline in Azure Data Factory.
+* Add a Copy Activity to the pipeline that moves and transforms data from the source to the raw container.
+* Configure the Copy Activity:
+* Source: Define the source dataset and transformation logic
+* Sink: Define the sink dataset (the Raw Container in the Data Lake).
+* Example of the Copy Activity:
+# Linked Service http:
 {
 	"name": "ls_HttpServer",
 	"properties": {
@@ -132,7 +133,7 @@ Linked Service http:
 		}
 	}
 }
-Linked Service sqldb:
+# Linked Service sqldb:
 {
 	"name": "ls_sqldb",
 	"properties": {
@@ -156,7 +157,7 @@ Linked Service sqldb:
 		}
 	}
 }
-Linked Service keyvault:
+# Linked Service keyvault:
 {
 	"name": "ls_keyvault",
 	"properties": {
