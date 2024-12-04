@@ -19,7 +19,8 @@
 * Raw: Stores unprocessed data directly ingested from sources.
 * Curated: Holds cleaned, validated, and partially transformed data.
 * Staging: Contains business-ready, aggregated data for analytics.
-  
+<img width="1762" alt="Containers" src="https://github.com/user-attachments/assets/4ad9e687-cb4f-4135-9994-89948acb8a65">
+
 # Microsoft Entra ID:
 <img width="1728" alt="MEntraID" src="https://github.com/user-attachments/assets/9d801a5a-2c52-4fdb-ab83-4bd52e0bcbc9">
 
@@ -99,12 +100,17 @@
 * Access Secrets:
 * Applications or services (Azure Data Factory) retrieve the secret from the Key Vault using its name (client-secret) and the vault's name (retailkeyvault).
 * Assign Permissions:
+<img width="1762" alt="Key - DF Acess" src="https://github.com/user-attachments/assets/0d1a226c-74e4-4e7b-9973-99541096d1de">
+
 * Assign the necessary access roles to allow services to read the secrets stored in the vault.
+  <img width="1725" alt="Client Secret" src="https://github.com/user-attachments/assets/5f7042bc-0cc6-4cbd-a261-5e586d58d132">
 
 # Implementation Plan for Data Movement and Transformation Using Azure Data Factory Pipeline
 # 1. Create an Azure Data Factory (ADF) Instance
 * In the Azure portal, create an Azure Data Factory instance (e.g., retailfact23).
 This will be the environment where your pipelines, datasets, and linked services are defined.
+<img width="1740" alt="Data Factory" src="https://github.com/user-attachments/assets/ce3c2385-24a9-46d2-8bd4-81f4c8ecb53a">
+
 # 2. Define Linked Services
 * Linked Service for Source:
 * Create a linked service for your source data (Azure SQL Database, API).
@@ -117,6 +123,9 @@ This will be the environment where your pipelines, datasets, and linked services
 * Create a new pipeline in Azure Data Factory.
 * Add a Copy Activity to the pipeline that moves and transforms data from the source to the raw container.
 * Configure the Copy Activity:
+<img width="1725" alt="DF - Pipelinehttp" src="https://github.com/user-attachments/assets/25437472-cc85-41a8-a6b6-d468245593e2">
+<img width="1737" alt="Df - Pipelinesql" src="https://github.com/user-attachments/assets/3ca00aa4-fc4f-4317-8c8f-399ee710dc6a">
+
 * Source: Define the source dataset and transformation logic
 * Sink: Define the sink dataset (the Raw Container in the Data Lake).
 * Example of the Copy Activity:
@@ -142,9 +151,49 @@ This will be the environment where your pipelines, datasets, and linked services
 * Once the pipeline successfully runs, validate that the data has been copied correctly to the Raw container in Azure Data Lake.
 * You can check the data using Azure Storage Explorer or through the Azure portal.
 
+# Data Transformation and Loading using Databricks
+* Source Data:
+* Raw Container: Contains raw data files (http.txt and sqldb.txt).
+* Destination:
+* Curated Container: Stores cleaned and processed data in Delta format.
+# Step 1: Set Up Databricks Environment
+* Launch Databricks and connect to the Ramoju cluster.
+<img width="1722" alt="Databricks" src="https://github.com/user-attachments/assets/c23cedb1-68d1-440e-b54b-4f2cdb262563">
 
+* Ensure the cluster is running and libraries are up to date.
+<img width="1![Uploading Databricks.png…]()
+744" alt="Cluster" src="https://github.com/user-attachments/assets/dc4f9f8e-dc48-4735-8fea-d96494c30423">
 
-
+# Step 2: Mount Azure Data Lake Storage
+* Mount Raw Container: Mount the raw container from ADLS:
+* Source: abfss://raw@mywarehouse23.dfs.core.windows.net/
+* Mount Point: /mnt/mywarehouse23/raw
+* Mount Curated Container: Mount the curated container:
+* Source: abfss://curated@mywarehouse23.dfs.core.windows.net/
+* Mount Point: /mnt/mywarehouse23/curated.
+# Step 3: Read and Prepare Raw Data
+* Rename Files: Rename files in the raw container for clarity:
+* http.txt → http.csv
+* sqldb.txt → sqldb.csv.
+* Load Files: Read renamed files into Spark DataFrames:
+* http.csv: Represents product details.
+* sqldb.csv: Represents sales transaction data.
+# Step 4: Data Cleaning and Transformation
+* Infer or Apply Schemas:
+* Define schemas for both DataFrames to ensure data type consistency.
+* Drop Unnecessary Columns:
+* Remove columns that are not required for analysis (image in HTTP data).
+* Handle Missing or Null Values:
+* Fill missing values in HTTP data.
+* Drop rows with null values in SQLDB data.
+# Step 5: Write to Curated Container
+* Write the cleaned DataFrames into the curated container in Delta format:
+* HTTP Data: Save at /mnt/mywarehouse23/curated/http_delta.
+* SQLDB Data: Save at /mnt/mywarehouse23/curated/sqldb_delta.
+* Ensure the files are written in overwrite mode for consistency.
+# Step 6: Validate Data in Curated Container
+* List files in the curated container to confirm successful writing:
+* Load and preview data in Delta format to verify cleaning and transformation steps.
 
 
 # 1. Configure Azure Data Lake Access
@@ -174,9 +223,151 @@ dbutils.fs.ls() fetches the contents of the specified ADLS path.
 * mode="append": Appends new data if the Delta table already exists.
 # 10. Verify Curated Data
 * Lists the files in the curated container to verify successful data writing.
+<img width="1746" alt="curated" src="https://github.com/user-attachments/assets/1268d1dc-af6a-433f-b176-1a401374758e">
 
+# 1. Configure Azure Data Lake Access
+*Configures the Spark session to authenticate with the Azure Data Lake Storage (ADLS) Gen2 account (mywarehouse23) using an access key.
+# 2. Display Curated Data
+*Lists and displays the contents of the curated container to verify the presence of http_delta and salesproduct_delta.
+# 3. Read Data from Curated Container
+* Loads the Delta-formatted curated datasets into Spark DataFrames:
+* http_df: Contains HTTP API data.
+* salesproduct_df: Contains sales product data.
+# 4. Register Temporary Views
+* Registers the DataFrames as temporary SQL views, allowing Spark SQL queries to manipulate the data.
+# 5. Query Data Using Spark SQL
+* Executes a SQL query on the http view to retrieve all rows.
+* Assigns the result of the SQL query to a new DataFrame (httpstaging_df) for further processing.
+* Retrieves all rows from the salesproduct view.
+* Assigns the result of the SQL query to a new DataFrame (salesstaging_df).
+# 6. Define Paths for Staging Container
+* Specifies paths in the staging container for saving the transformed data in Delta format.
+# 7. Save DataFrames to Staging Container
+* Saves the SQL query results into the staging container:
+* httpstaging_df → httpstaging_delta
+* salesstaging_df → salesstaging_delta
+* mode="overwrite" ensures that any existing data at these paths is replaced.
+# 8. Display Staging Data
+* Lists and displays the contents of the staging container to verify successful writes.
 
+# 1. Retrieve Secrets from Azure Key Vault
+* Retrieves the client-secret for the Service Principal from Azure Key Vault using Databricks Secret Scope.
+# 2. Set Spark Configuration for ADLS OAuth
+* Configures Spark to authenticate with ADLS using OAuth.
+* ClientCredsTokenProvider enables token-based access via Service Principal credentials.
+# 3. Define Configuration Dictionary
+* Consolidates the Spark configuration into a reusable dictionary.
+# 4. Mount Raw Container
+* Mounts the raw container (abfss://raw@mywarehouse23.dfs.core.windows.net/) to /mnt/mywarehouse23/raw.
+* Checks for an existing mount at the same location and unmounts it if found.
+* Handles errors during the mounting process.
+# 5. Mount Curated Container
+* Mounts the curated container (abfss://curated@mywarehouse23.dfs.core.windows.net/) to /mnt/mywarehouse23/curated.
+* Follows the same unmount-check and error-handling logic as for the raw container.
+# Key Functionalities
+* Secure Authentication: Uses a Service Principal for OAuth-based secure access to ADLS.
+* Key Vault Integration: Ensures secrets are securely fetched without hardcoding.
+* Mount Points: Simplifies file access via /mnt directories for Spark-based operations.
 
+# Synapse Analytics Integration with GitHub and Staging Container
+# Step 1: Create Synapse Analytics Workspace
+* In the Azure portal, create a Synapse Analytics Workspace:
+* Workspace Name: newretailsynapse
+* Link it to the existing Azure Data Lake Storage (ADLS) account mywarehouse23.
+* Assign Contributor and Storage Blob Data Contributor roles to Synapse for seamless integration with ADLS.
+# Step 2: Connect Synapse Workspace to GitHub
+* Go to the Manage tab in Synapse Studio.
+* Select Git Configuration under Source Control.
+* Link your GitHub repository:
+* Select your GitHub account and repository.
+* Choose a collaboration branch (e.g., main or develop).
+* Configure a Synapse project for CI/CD practices.
+* Save the configuration to enable version control for your Synapse workspace.
+# Step 3: Create and Link Staging Container
+* Ensure the staging container exists in ADLS with required permissions:
+* Container Name: staging
+* Example files:httpstaging_delta (data from http.csv)
+* salesstaging_delta (data from salesproduct.csv).
+* Validate file access:
+* Use Synapse's Data Hub to browse ADLS and verify staging files are accessible.
+# create a dedicated SQL pool in Azure Synapse Analytics and define external tables:
+# Step 1: Create a Dedicated SQL Pool
+* Navigate to Synapse Workspace:
+* Open the Azure portal and navigate to your Synapse workspace (newretailsynapse).
+* Create a Dedicated SQL Pool:
+* Go to SQL Pools under Synapse Studio > Manage.
+* Click New SQL Pool.
+* Provide details:
+* Name: mypool
+* Performance Level: Choose the desired performance level as 0
+* Click Create and wait for deployment.
+<img width="1707" alt="dedicatedpool" src="https://github.com/user-attachments/assets/58b945b4-1f34-4f5b-af1d-7bb5ac615fad">
+
+# Step 2: Configure the Dedicated SQL Pool
+* Open the Synapse Studio and connect to the mypool
+* Ensure the pool is online and ready for queries.
+# Step 3: Create External Tables
+* 1. Create External Data Source
+* Use the Data Hub in Synapse Studio to ensure access to the Azure Data Lake container (staging) is configured correctly.
+* Run the following SQL script in the mypool
+# Step 4: Query External Tables
+* Validate that the external tables are created successfully and query their contents:
+* SELECT * FROM StagingHttpData;
+<img width="1892" alt="httpext" src="https://github.com/user-attachments/assets/5278cae1-ca1a-46bb-801f-690647eaff11">
+
+* SELECT * FROM StagingSalesData;
+
+  #
+  Step 1: Connect Synapse Studio to GitHub
+Navigate to Synapse Studio:
+
+Open your Synapse workspace in the Azure portal and launch Synapse Studio.
+Enable Git Integration:
+
+Go to Manage > Git Configuration.
+Select Git Repository and connect to your GitHub account.
+Enter the repository details:
+Repository Name: <repository_name>
+Collaboration Branch: main
+Working Branch: dev
+Save the configuration.
+Step 2: Commit and Push Changes from Synapse
+Make Changes:
+
+After creating the external tables, navigate to the Source Control panel in Synapse Studio.
+Select the changes made (e.g., SQL scripts for external tables) and click Commit.
+Push to GitHub:
+
+After committing, ensure the changes are pushed to the dev branch on GitHub.
+Step 3: Create a Pull Request (PR) on GitHub
+Go to Your GitHub Repository:
+
+Open your GitHub repository where the Synapse project is stored.
+Create Pull Request:
+
+Go to the Pull Requests tab and click New Pull Request.
+Compare the branches:
+Base: qa
+Compare: dev
+Review the changes and add a description of the updates (e.g., "Added external table definitions and staging logic").
+Submit Pull Request:
+
+Click Create Pull Request to submit it.
+Step 4: Review Changes in GitHub
+Team Review:
+
+Have your QA team review the changes in the pull request.
+Add comments or approve the PR if everything looks good.
+Merge Changes:
+
+Once approved, click Merge Pull Request to merge changes from the dev branch into the qa branch.
+Step 5: Verify Changes in Synapse (QA Environment)
+Switch to QA Branch:
+
+In Synapse Studio, go to Git Configuration and switch to the qa branch.
+Validate External Tables:
+
+Run the external table queries in the QA environment to ensure the changes have been successfully deployed.
 
 
 
