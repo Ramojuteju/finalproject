@@ -102,17 +102,17 @@
 * Assign the necessary access roles to allow services to read the secrets stored in the vault.
 
 # Implementation Plan for Data Movement and Transformation Using Azure Data Factory Pipeline
-* 1. Create an Azure Data Factory (ADF) Instance
+# 1. Create an Azure Data Factory (ADF) Instance
 * In the Azure portal, create an Azure Data Factory instance (e.g., retailfact23).
 This will be the environment where your pipelines, datasets, and linked services are defined.
-* 2. Define Linked Services
+# 2. Define Linked Services
 * Linked Service for Source:
 * Create a linked service for your source data (Azure SQL Database, API).
 * This defines the connection to your data source.
 * Linked Service for Sink (Data Lake Storage):
 * Create a linked service to Azure Data Lake Storage Gen2 where your raw data will be stored (mywarehouse23).
 * This will define how ADF connects to your Data Lake storage.
-* 3. Define the Pipeline with Copy Activity
+# 3. Define the Pipeline with Copy Activity
 * Create a Pipeline:
 * Create a new pipeline in Azure Data Factory.
 * Add a Copy Activity to the pipeline that moves and transforms data from the source to the raw container.
@@ -121,6 +121,14 @@ This will be the environment where your pipelines, datasets, and linked services
 * Sink: Define the sink dataset (the Raw Container in the Data Lake).
 * Example of the Copy Activity:
 # Linked Service http:
+
+
+
+
+
+
+
+
 {
 	"name": "ls_HttpServer",
 	"properties": {
@@ -132,54 +140,55 @@ This will be the environment where your pipelines, datasets, and linked services
 			"authenticationType": "Anonymous"
 		}
 	}
-}
+} 
+
 # Linked Service sqldb:
-{
-	"name": "ls_sqldb",
-	"properties": {
-		"annotations": [],
-		"type": "AzureSqlDatabase",
-		"typeProperties": {
-			"server": "retailserver23.database.windows.net",
-			"database": "retaildbase",
-			"encrypt": "mandatory",
-			"trustServerCertificate": false,
-			"authenticationType": "SQL",
-			"userName": "sqluseradmin",
-			"password": {
-				"type": "AzureKeyVaultSecret",
-				"store": {
-					"referenceName": "ls_keyvault",
-					"type": "LinkedServiceReference"
-				},
-				"secretName": "client-secret"
-			}
-		}
-	}
-}
+*{
+*	"name": "ls_sqldb",
+*	"properties": {
+*		"annotations": [],
+*		"type": "AzureSqlDatabase",
+*		"typeProperties": {
+*			"server": "retailserver23.database.windows.net",
+*			"database": "retaildbase",
+*			"encrypt": "mandatory",
+*			"trustServerCertificate": false,
+*			"authenticationType": "SQL",
+*			"userName": "sqluseradmin",
+*			"password": {
+*				"type": "AzureKeyVaultSecret",
+*				"store": {
+*					"referenceName": "ls_keyvault",
+*					"type": "LinkedServiceReference"
+*				},
+*				"secretName": "client-secret"
+*			}
+*		}
+*	}
+*}
 # Linked Service keyvault:
-{
-	"name": "ls_keyvault",
-	"properties": {
-		"annotations": [],
-		"type": "AzureKeyVault",
-		"typeProperties": {
-			"baseUrl": "https://retailkeyvault.vault.azure.net/"
-		}
-	}
-}
-4. Add Data Flow 
-If transformations are needed (cleaning or data aggregation), add a Data Flow activity before the Copy Activity in the pipeline.
-Use Data Flow to filter out invalid records or to transform the data format before moving it to the Raw container.
-5. Trigger the Pipeline
-Trigger: Set up triggers (manual or scheduled) to run the pipeline at a specific time or when an event occurs.
-Set a scheduled trigger to run the pipeline every night to move the daily data.
-6. Monitor the Pipeline Execution
-Monitor the pipeline execution and log any errors or issues using the Monitoring feature in Azure Data Factory.
-Review activity run details for success or failure.
-7. Validate Data in Raw Container
-Once the pipeline successfully runs, validate that the data has been copied correctly to the Raw container in Azure Data Lake.
-You can check the data using Azure Storage Explorer or through the Azure portal.
+*{
+*	"name": "ls_keyvault",
+*	"properties": {
+*		"annotations": [],
+*		"type": "AzureKeyVault",
+*		"typeProperties": {
+*			"baseUrl": "https://retailkeyvault.vault.azure.net/"
+*		}
+*	}
+*}
+# 4. Add Data Flow 
+* If transformations are needed (cleaning or data aggregation), add a Data Flow activity before the Copy Activity in the pipeline.
+* Use Data Flow to filter out invalid records or to transform the data format before moving it to the Raw container.
+#. Trigger the Pipeline
+* Trigger: Set up triggers (manual or scheduled) to run the pipeline at a specific time or when an event occurs.
+* Set a scheduled trigger to run the pipeline every night to move the daily data.
+# 5. Monitor the Pipeline Execution
+* Monitor the pipeline execution and log any errors or issues using the Monitoring feature in Azure Data Factory.
+* Review activity run details for success or failure.
+# 6. Validate Data in Raw Container
+* Once the pipeline successfully runs, validate that the data has been copied correctly to the Raw container in Azure Data Lake.
+* You can check the data using Azure Storage Explorer or through the Azure portal.
 
 
 
