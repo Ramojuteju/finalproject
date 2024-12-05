@@ -353,8 +353,8 @@ dbutils.fs.ls() fetches the contents of the specified ADLS path.
 * SELECT * FROM StagingSalesData;
 <img width="1853" alt="salesext" src="https://github.com/user-attachments/assets/bf10d32e-94a1-4380-ba08-79dc4ad1459b">
 
-  #
-  Step 1: Connect Synapse Studio to GitHub
+# 
+Step 1: Connect Synapse Studio to GitHub
 Navigate to Synapse Studio:
 
 Open your Synapse workspace in the Azure portal and launch Synapse Studio.
